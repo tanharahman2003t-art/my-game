@@ -1,57 +1,103 @@
+:root {
+    --neon-blue: #00f2ff;
+    --neon-pink: #ff00ea;
+    --bg-dark: #0a0b10;
+}
+
 body {
     margin: 0;
-    background: #050505;
+    background: var(--bg-dark);
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    font-family: 'Segoe UI', sans-serif;
+    font-family: 'Orbitron', sans-serif; /* You can use sans-serif if font not loaded */
     color: white;
+    overflow: hidden;
 }
+
 #game-container {
     position: relative;
     width: 400px;
-    height: 700px;
-    background: #111;
-    border: 4px solid #333;
-    border-radius: 15px;
-    overflow: hidden;
+    height: 650px;
+    background: #000;
+    border: 2px solid var(--neon-blue);
+    box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+    border-radius: 12px;
 }
-canvas { display: block; width: 100%; height: 100%; }
-#ui {
+
+canvas { display: block; border-radius: 10px; }
+
+/* Stats HUD */
+#hud {
     position: absolute;
-    top: 20px;
-    left: 20px;
-    right: 20px;
+    top: 0;
+    width: 100%;
+    padding: 15px;
+    box-sizing: border-box;
     display: flex;
     justify-content: space-between;
     z-index: 5;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
 }
-.stat {
-    background: rgba(0, 0, 0, 0.6);
-    padding: 8px 15px;
-    border-radius: 20px;
-    font-weight: bold;
-    border: 1px solid #00f2ff;
+
+.stat-box { display: flex; flex-direction: column; align-items: flex-start; }
+.label { font-size: 10px; letter-spacing: 2px; color: var(--neon-blue); margin-bottom: 4px; }
+#hit-count, #score-val { font-weight: bold; font-size: 18px; }
+
+.progress-bar-bg {
+    width: 100px;
+    height: 6px;
+    background: #222;
+    border-radius: 3px;
+    margin-bottom: 4px;
 }
-.screen {
+#progress-fill {
+    width: 0%;
+    height: 100%;
+    background: var(--neon-blue);
+    box-shadow: 0 0 10px var(--neon-blue);
+    transition: width 0.3s;
+}
+
+/* Overlays */
+.overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0,0,0,0.9);
+    background: rgba(0,0,0,0.85);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     z-index: 10;
-    text-align: center;
+    backdrop-filter: blur(5px);
 }
-button {
-    padding: 15px 40px;
-    font-size: 20px;
-    background: #00f2ff;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
+
+.glow-text {
+    font-size: 36px;
     font-weight: bold;
+    color: var(--neon-blue);
+    text-shadow: 0 0 15px var(--neon-blue);
+    margin-bottom: 10px;
 }
+
+button {
+    background: transparent;
+    color: var(--neon-blue);
+    border: 2px solid var(--neon-blue);
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+button:hover {
+    background: var(--neon-blue);
+    color: black;
+    box-shadow: 0 0 20px var(--neon-blue);
+}
+
 .hidden { display: none !important; }
