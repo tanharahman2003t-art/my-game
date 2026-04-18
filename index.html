@@ -2,46 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Thief Tracker: Chase Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thief Tracker - Chase Game</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="game-container">
         <canvas id="gameCanvas"></canvas>
-
-        <div id="ui-layer">
-            <div id="hud" class="hidden">
-                <div class="hud-top">
-                    <div id="score-card">SCORE: <span id="score-val">0</span></div>
-                    <div id="mission-card">MISSION: <span id="mission-text">Hit Thief 3x</span> (<span id="mission-progress">0</span>/3)</div>
-                </div>
-                <div id="inventory">BOTTLES: <span id="item-count">0</span></div>
-            </div>
-
-            <div id="start-screen" class="screen">
-                <h1 class="glow-text">THIEF TRACKER</h1>
-                <p>Catch the thief before he escapes!</p>
-                <div class="controls-guide">
-                    Arrows: Move/Jump/Slide<br>
-                    F: Throw Bottle (Tap on Mobile)
-                </div>
-                <button id="start-btn">START CHASE</button>
-            </div>
-
-            <div id="game-over-screen" class="screen hidden">
-                <h1>WASTED</h1>
-                <p>The thief got away!</p>
-                <div class="final-stats">Final Score: <span id="final-score">0</span></div>
-                <button id="retry-btn">RETRY</button>
-            </div>
-
-            <div id="success-screen" class="screen hidden">
-                <h1 class="success-text">CAUGHT!</h1>
-                <p>Mission Accomplished. You secured the package.</p>
-                <div class="final-stats">Final Score: <span id="success-score">0</span></div>
-                <button id="next-btn">PLAY AGAIN</button>
-            </div>
+        <div id="hud">
+            <div>Score: <span id="score">0</span></div>
+        </div>
+        <div id="start-screen" class="overlay">
+            <h1 style="color: #00f2ff; font-size: 40px; margin-bottom: 10px;">THIEF CHASE</h1>
+            <p style="color: #ccc; margin-bottom: 25px;">Catch the thief! Avoid red obstacles.</p>
+            <button id="start-btn">START CHASE</button>
+            <p style="color: #666; margin-top: 20px; font-size: 14px;">Arrows: Move/Jump/Slide</p>
         </div>
     </div>
     <script src="game.js"></script>
