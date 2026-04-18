@@ -1,88 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>NEON CHASE — 3D Street Runner</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+  <title>NEON CHASE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
+  <canvas id="gc"></canvas>
 
-  <!-- Ambient background layers -->
-  <div id="bg-layer">
-    <div class="grid-floor"></div>
-    <div class="scanlines"></div>
-    <div class="vignette"></div>
+  <!-- HUD -->
+  <div id="hud" class="hidden">
+    <div class="hud-left">
+      <div class="hlabel">SCORE</div>
+      <div id="hScore">0</div>
+    </div>
+    <div class="hud-center">
+      <div class="hlabel">LEVEL</div>
+      <div id="hLevel">1</div>
+    </div>
+    <div class="hud-right">
+      <div class="hlabel">LIVES</div>
+      <div id="hLives">❤❤❤</div>
+    </div>
   </div>
 
-  <div id="root">
-
-    <!-- ═══════════ START SCREEN ═══════════ -->
-    <div id="startScreen" class="screen active">
-      <div class="logo-wrap">
-        <div class="logo-sub">CYBER DIVISION — UNIT 7</div>
-        <div class="logo-title">NEON<br/>CHASE</div>
-        <div class="logo-version">PRO v3.0 · 3D EDITION</div>
-      </div>
-      <div class="start-instructions">
-        <div class="inst-row"><span class="key">←</span><span class="key">→</span> Switch Lanes</div>
-        <div class="inst-row"><span class="key-pill">S</span> Shield &nbsp;·&nbsp; <span class="key-pill">R</span> Rapid Fire &nbsp;·&nbsp; <span class="key-pill">♥</span> Extra Life</div>
-      </div>
-      <button class="btn-primary" id="startBtn">
-        <span class="btn-glow"></span>
-        INITIATE CHASE
-      </button>
-      <div class="objective">Hit the thief <strong>10 times</strong>. Don't crash. Don't die.</div>
+  <div id="hud-bottom" class="hidden">
+    <div id="shieldBar" class="bar-wrap hidden">
+      <div class="hlabel">SHIELD</div>
+      <div class="bar-bg"><div id="shieldFill" class="bar-fill shield"></div></div>
     </div>
-
-    <!-- ═══════════ GAME SCREEN ═══════════ -->
-    <div id="gameScreen" class="screen">
-
-      <!-- HUD top bar -->
-      <div id="hud">
-        <div class="hud-block">
-          <div class="hud-label">TARGET</div>
-          <div class="bar-track"><div id="hitBar"></div></div>
-          <div class="hud-val" id="hitCount">0 / 10</div>
-        </div>
-        <div class="hud-center">
-          <div class="hud-label">LEVEL</div>
-          <div class="hud-lvl" id="levelNum">01</div>
-        </div>
-        <div class="hud-block right">
-          <div class="hud-label">SCORE</div>
-          <div class="hud-val" id="scoreVal">000000</div>
-          <div id="livesRow"></div>
-        </div>
-      </div>
-
-      <!-- Status banner (combo, powerup) -->
-      <div id="statusBanner"></div>
-
-      <!-- 3D CANVAS -->
-      <canvas id="gc"></canvas>
-
-      <!-- Mobile controls -->
-      <div id="mobileCtrl">
-        <button class="mBtn" id="mLeft">&#9664;</button>
-        <div class="mBtn-center"></div>
-        <button class="mBtn" id="mRight">&#9654;</button>
-      </div>
-
+    <div id="rapidBar" class="bar-wrap hidden">
+      <div class="hlabel">RAPID</div>
+      <div class="bar-bg"><div id="rapidFill" class="bar-fill rapid"></div></div>
     </div>
+  </div>
 
-    <!-- ═══════════ GAME OVER SCREEN ═══════════ -->
-    <div id="gameoverScreen" class="screen">
-      <div class="go-badge" id="goBadge">MISSION FAILED</div>
-      <div class="go-title" id="goTitle">ELIMINATED</div>
-      <p class="go-msg" id="goMsg">You ran out of lives.</p>
-      <div class="go-stats" id="goStats"></div>
-      <button class="btn-primary" onclick="location.reload()">&#8635; &nbsp; RETRY MISSION</button>
+  <!-- Status pop -->
+  <div id="banner"></div>
+
+  <!-- START -->
+  <div id="startScreen" class="overlay">
+    <div class="logo-eyebrow">CYBER DIVISION · UNIT 7</div>
+    <div class="logo">NEON<br>CHASE</div>
+    <div class="logo-sub">INFINITE PURSUIT</div>
+    <div class="start-keys">
+      <span class="key">◀</span><span class="key">▶</span> Switch Lanes
     </div>
+    <div class="powerup-legend">
+      <span class="pu-badge shield">S</span> Shield &nbsp;·&nbsp;
+      <span class="pu-badge rapid">R</span> Rapid &nbsp;·&nbsp;
+      <span class="pu-badge life">♥</span> Life
+    </div>
+    <button id="startBtn" class="main-btn">▶ &nbsp;START CHASE</button>
+    <p class="tagline">Dodge barriers · Collect power-ups · Chase forever</p>
+  </div>
 
-  </div><!-- /#root -->
+  <!-- GAME OVER -->
+  <div id="goScreen" class="overlay hidden">
+    <div class="go-label" id="goLabel">MISSION FAILED</div>
+    <div class="go-big" id="goBig">ELIMINATED</div>
+    <div class="go-stats" id="goStats"></div>
+    <button class="main-btn" onclick="location.reload()">↺ &nbsp;RETRY</button>
+  </div>
+
+  <!-- Mobile touch buttons -->
+  <div id="touch-ctrl" class="hidden">
+    <button id="tLeft"  class="touch-btn">◀</button>
+    <button id="tRight" class="touch-btn">▶</button>
+  </div>
 
   <script src="game.js"></script>
 </body>
