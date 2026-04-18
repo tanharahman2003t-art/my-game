@@ -1,45 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Chase Runner Game</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thief Tracker - The Final Chase</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<!-- TOP UI BAR -->
-<div class="top-bar">
-  <div class="logo">🔥 Chase Runner</div>
-
-  <div class="stats">
-    <div class="card">Score: <span id="score">0</span></div>
-    <div class="card">Ammo: <span id="ammo">0</span></div>
-    <div class="card">Hits: <span id="hits">0 / 10</span></div>
-  </div>
-</div>
-
-<!-- GAME CANVAS -->
-<canvas id="gameCanvas"></canvas>
-
-<!-- START SCREEN -->
-<div id="startScreen" class="overlay">
-  <h1>🔥 Chase the Thief</h1>
-  <p>Collect ammo, avoid obstacles, shoot the thief!</p>
-  <button onclick="startGame()">Start Game</button>
-</div>
-
-<!-- GAME OVER -->
-<div id="gameOver" class="overlay hidden">
-  <h1>💀 Game Over</h1>
-  <button onclick="restartGame()">Restart</button>
-</div>
-
-<!-- WIN SCREEN -->
-<div id="winScreen" class="overlay hidden">
-  <h1>🏆 You Caught the Thief!</h1>
-  <button onclick="restartGame()">Play Again</button>
-</div>
-
-<script src="game.js"></script>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="ui">
+            <div class="stat">Hits: <span id="hits">0</span>/10</div>
+            <div class="stat">Score: <span id="score">0</span></div>
+        </div>
+        <div id="overlay" class="screen">
+            <h1 id="title">THE CHASE</h1>
+            <p id="msg">Catch the thief 10 times to win!</p>
+            <button id="start-btn">START MISSION</button>
+        </div>
+    </div>
+    <script src="game.js"></script>
 </body>
 </html>
