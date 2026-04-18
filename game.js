@@ -1,35 +1,24 @@
-/**
- * THIEF TRACKER - CHASE GAME (IMAGE VERSION)
- */
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// ১. Thief Image Load Kora
+// ১. ক্যারেক্টার ইমেজ লোড
 const thiefImg = new Image();
-thiefImg.src = 'thief.png'; // Apnar image file-er naam
+thiefImg.src = 'thief.png'; 
 
+// ২. গেম কনফিগারেশন
 const CONFIG = {
     laneCount: 3,
     baseSpeed: 7,
-    maxSpeed: 15,
-    accel: 0.001,
     gravity: 0.7,
-    jumpPower: -15,
-    missionGoal: 3
+    jumpPower: -16
 };
 
-let state = {
-    isRunning: false,
-    speed: CONFIG.baseSpeed,
-    score: 0,
-    bottles: 0,
-    thiefHits: 0,
-    laneWidth: 0,
-    lastObstacle: 0,
-    animationFrame: 0
-};
+let score = 0;
+let isRunning = false;
+let frameCount = 0;
+let obstacles = [];
+let laneWidth = 0;
 
-// --- Player (The Chaser - Blue Hero) ---
 class Player {
     constructor() {
         this.lane = 1;
@@ -44,15 +33,14 @@ class Player {
     }
 
     reset() {
-        this.width = state.laneWidth * 0.6;
-        this.height = this.width * 1.5;
+        laneWidth = canvas.width / CONFIG.laneCount;
         this.y = canvas.height - this.height - 80;
         this.groundY = this.y;
     }
 
     update() {
-        let targetX = this.lane * state.laneWidth + (state.laneWidth/2) - (this.width/2);
-        this.x += (targetX - this.x) * 0.2; // Smooth movement
+        let targetX = this.lane * laneWidth + (laneWidth/2) - (this.width/2);
+        this.x += (targetX - this.x) * 0.2; // Smooth lane change
 
         this.y += this.yVel;
         this.yVel += CONFIG.gravity;
@@ -70,51 +58,49 @@ class Player {
     }
 
     draw() {
-        ctx.fillStyle = '#00f2ff'; // Hero color
+        ctx.fillStyle = '#00f2ff';
         let drawH = this.isSliding ? this.height * 0.5 : this.height;
         let drawY = this.isSliding ? this.y + this.height * 0.5 : this.y;
+        
+        // হিরো বক্স (আপাতত)
         ctx.beginPath();
         ctx.roundRect(this.x, drawY, this.width, drawH, 10);
         ctx.fill();
+        
+        // গ্লো ইফেক্ট
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = '#00f2ff';
     }
 }
 
-// --- Thief (The Character you provided) ---
 class Thief {
     constructor() {
         this.lane = 1;
         this.x = 0;
         this.y = 100;
-        this.width = 80;
-        this.height = 100;
+        this.width = 90;
+        this.height = 110;
         this.laneTimer = 0;
-        this.slowdown = 0;
     }
 
     update() {
-        let targetX = this.lane * state.laneWidth + (state.laneWidth/2) - (this.width/2);
+        let targetX = this.lane * laneWidth + (laneWidth/2) - (this.width/2);
         this.x += (targetX - this.x) * 0.1;
 
-        // Thief AI: Change lanes
         this.laneTimer++;
-        if (this.laneTimer > 100) {
+        if (this.laneTimer > 80) {
             this.lane = Math.floor(Math.random() * 3);
             this.laneTimer = 0;
         }
-        if (this.slowdown > 0) this.slowdown--;
     }
 
     draw() {
+        ctx.shadowBlur = 0; // ইমেজ এর জন্য শ্যাডো অফ
         if (thiefImg.complete) {
-            // Douranor ekta natural feel deyar jonno 'Bobbing' effect
-            let bob = Math.sin(state.animationFrame * 0.2) * 5;
-            
-            ctx.save();
-            if (this.slowdown > 0) ctx.filter = 'brightness(2) contrast(1.5)'; // Hit effect
+            let bob = Math.sin(frameCount * 0.15) * 6; // উপরে-নিচে নড়ার এনিমেশন
             ctx.drawImage(thiefImg, this.x, this.y + bob, this.width, this.height);
-            ctx.restore();
         } else {
-            ctx.fillStyle = 'red'; // Backup
+            ctx.fillStyle = 'red';
             ctx.fillRect(this.x, this.y, this.width, this.height);
         }
     }
@@ -122,75 +108,89 @@ class Thief {
 
 const player = new Player();
 const thief = new Thief();
-let obstacles = [];
 
-function init() {
-    canvas.width = 400;
-    canvas.height = 650;
-    state.laneWidth = canvas.width / 3;
-    player.reset();
-    
-    // Start button logic
-    document.getElementById('start-btn').onclick = () => {
-        document.getElementById('start-screen').classList.add('hidden');
-        state.isRunning = true;
-        gameLoop();
-    };
-}
-
-function gameLoop() {
-    if (!state.isRunning) return;
-    
-    state.animationFrame++;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Background Road
-    ctx.fillStyle = '#222';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    player.update();
-    player.draw();
-
-    thief.update();
-    thief.draw();
-
-    // Spawning Obstacles
-    if (state.animationFrame % 100 === 0) {
+function spawnObstacle() {
+    if (frameCount % 60 === 0) {
         obstacles.push({
             lane: Math.floor(Math.random() * 3),
             y: -50,
-            w: 60,
-            h: 40
+            w: 70,
+            h: 50
         });
     }
+}
 
-    obstacles.forEach((obs, i) => {
-        obs.y += state.speed;
-        ctx.fillStyle = '#ff4444';
-        ctx.fillRect(obs.lane * state.laneWidth + 20, obs.y, obs.w, obs.h);
+function update() {
+    if (!isRunning) return;
+    
+    frameCount++;
+    score += 0.1;
+    document.getElementById('score').innerText = Math.floor(score);
+
+    player.update();
+    thief.update();
+    spawnObstacle();
+
+    obstacles.forEach((obs, index) => {
+        obs.y += CONFIG.baseSpeed;
         
-        // Collision with player
+        // Collision
         if (obs.lane === player.lane && obs.y + obs.h > player.y && obs.y < player.y + player.height) {
             if (!player.isJumping) {
-                alert("The Thief escaped!");
+                isRunning = false;
+                alert("Game Over! Score: " + Math.floor(score));
                 location.reload();
             }
         }
-        if (obs.y > canvas.height) obstacles.splice(i, 1);
+        if (obs.y > canvas.height) obstacles.splice(index, 1);
+    });
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // রাস্তা
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // লেন লাইন
+    ctx.strokeStyle = '#333';
+    ctx.setLineDash([20, 20]);
+    for(let i=1; i<3; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * laneWidth, 0);
+        ctx.lineTo(i * laneWidth, canvas.height);
+        ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    // বাধা
+    ctx.fillStyle = '#ff3333';
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = 'red';
+    obstacles.forEach(obs => {
+        ctx.beginPath();
+        ctx.roundRect(obs.lane * laneWidth + 15, obs.y, obs.w, obs.h, 5);
+        ctx.fill();
     });
 
+    player.draw();
+    thief.draw();
+}
+
+function gameLoop() {
+    update();
+    draw();
     requestAnimationFrame(gameLoop);
 }
 
-// Controls
+// কন্ট্রোলস
 window.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft' && player.lane > 0) player.lane--;
     if (e.key === 'ArrowRight' && player.lane < 2) player.lane++;
-    if (e.key === 'ArrowUp') {
-        if (!player.isJumping) {
-            player.yVel = CONFIG.jumpPower;
-            player.isJumping = true;
-        }
+    if (e.key === 'ArrowUp' && !player.isJumping) {
+        player.yVel = CONFIG.jumpPower;
+        player.isJumping = true;
     }
     if (e.key === 'ArrowDown') {
         player.isSliding = true;
@@ -198,4 +198,12 @@ window.addEventListener('keydown', e => {
     }
 });
 
-init();
+// গেম শুরু
+document.getElementById('start-btn').onclick = () => {
+    canvas.width = 400;
+    canvas.height = 650;
+    player.reset();
+    document.getElementById('start-screen').classList.add('hidden');
+    isRunning = true;
+    gameLoop();
+};
