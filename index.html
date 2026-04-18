@@ -3,20 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thief Tracker - The Final Chase</title>
+    <title>Thief Tracker: Pro Version</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="game-container">
-        <canvas id="gameCanvas"></canvas>
-        <div id="ui">
-            <div class="stat">Hits: <span id="hits">0</span>/10</div>
-            <div class="stat">Score: <span id="score">0</span></div>
+        <div id="hud">
+            <div class="stat-box">
+                <span class="label">TARGET</span>
+                <div class="progress-bar-bg">
+                    <div id="progress-fill"></div>
+                </div>
+                <span id="hit-count">0/10</span>
+            </div>
+            <div class="stat-box">
+                <span class="label">SCORE</span>
+                <span id="score-val">0</span>
+            </div>
         </div>
-        <div id="overlay" class="screen">
-            <h1 id="title">THE CHASE</h1>
-            <p id="msg">Catch the thief 10 times to win!</p>
-            <button id="start-btn">START MISSION</button>
+
+        <canvas id="gameCanvas"></canvas>
+
+        <div id="start-screen" class="overlay">
+            <div class="glow-text">NEON CHASE</div>
+            <p>Catch the thief 10 times. Avoid the obstacles.</p>
+            <button id="start-btn">INITIATE CHASE</button>
+        </div>
+
+        <div id="game-over-screen" class="overlay hidden">
+            <h1 id="result-title">MISSION FAILED</h1>
+            <p id="result-msg">You crashed into an obstacle!</p>
+            <button onclick="location.reload()">RETRY MISSION</button>
         </div>
     </div>
     <script src="game.js"></script>
