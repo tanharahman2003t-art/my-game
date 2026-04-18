@@ -1,245 +1,167 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+// ১. ইমেজ লোড
+const thiefImg = new Image(); thiefImg.src = 'thief.png';
+const gunImg = new Image(); thiefImg.src = 'thief.png'; // চোরের ইমেজ
+const playerImg = new Image(); playerImg.src = 'gun.png'; // প্লেয়ার (বন্দুক) ইমেজ
 
-// lanes
-const lanes = [
-  canvas.width / 2 - 120,
-  canvas.width / 2,
-  canvas.width / 2 + 120
-];
-
-// player (gun runner)
-let laneIndex = 1;
-let player = {
-  x: lanes[laneIndex],
-  y: canvas.height - 150,
-  width: 80,
-  height: 80,
-  dy: 0,
-  gravity: 0.8,
-  jump: -14,
-  grounded: true
+let gameState = {
+    isRunning: false,
+    hits: 0,
+    score: 0,
+    laneWidth: 0,
+    frame: 0,
+    speed: 7,
+    obstacles: []
 };
 
-// thief (target)
-let thief = {
-  x: lanes[1],
-  y: 100,
-  width: 80,
-  height: 80,
-  speed: 2
-};
+class Entity {
+    constructor(isPlayer = false) {
+        this.lane = 1;
+        this.x = 0;
+        this.y = 0;
+        this.w = 80;
+        this.h = 100;
+        this.isPlayer = isPlayer;
+        this.yVel = 0;
+        this.hitCooldown = 0;
+    }
 
-// images
-const playerImg = new Image();
-playerImg.src = "gun.png";
+    update() {
+        let targetX = this.lane * gameState.laneWidth + (gameState.laneWidth/2) - (this.w/2);
+        this.x += (targetX - this.x) * 0.15;
+        
+        if (this.isPlayer) {
+            this.y = canvas.height - 180;
+            if (this.hitCooldown > 0) this.hitCooldown--;
+        } else {
+            this.y = 120 + Math.sin(gameState.frame * 0.1) * 10;
+            if (gameState.frame % 100 === 0) this.lane = Math.floor(Math.random() * 3);
+        }
+    }
 
-const thiefImg = new Image();
-thiefImg.src = "thief.png";
+    draw() {
+        ctx.save();
+        let img = this.isPlayer ? playerImg : thiefImg;
+        if (this.isPlayer && this.hitCooldown > 0) ctx.filter = 'brightness(2)';
+        
+        if (img.complete) {
+            ctx.drawImage(img, this.x, this.y, this.w, this.h);
+        } else {
+            ctx.fillStyle = this.isPlayer ? '#00f2ff' : '#ff4444';
+            ctx.fillRect(this.x, this.y, this.w, this.h);
+        }
+        ctx.restore();
+    }
+}
 
-// game data
-let bullets = [];
-let obstacles = [];
-let ammoItems = [];
+const player = new Entity(true);
+const thief = new Entity(false);
 
-let ammo = 0;
-let hits = 0;
-let score = 0;
+function spawnObstacle() {
+    if (gameState.frame % 70 === 0) {
+        gameState.obstacles.push({
+            lane: Math.floor(Math.random() * 3),
+            y: -50,
+            type: Math.random() > 0.5 ? 'crate' : 'cone'
+        });
+    }
+}
 
-// controls
-document.addEventListener("keydown", (e) => {
-  if (e.key === "ArrowLeft" && laneIndex > 0) laneIndex--;
-  if (e.key === "ArrowRight" && laneIndex < 2) laneIndex++;
+function update() {
+    if (!gameState.isRunning) return;
+    gameState.frame++;
+    gameState.score += 0.1;
+    
+    player.update();
+    thief.update();
+    spawnObstacle();
 
-  if ((e.key === " " || e.key === "ArrowUp") && player.grounded) {
-    player.dy = player.jump;
-  }
+    // Hit Detection (Catching the thief)
+    if (player.lane === thief.lane && player.hitCooldown === 0) {
+        gameState.hits++;
+        player.hitCooldown = 50;
+        document.getElementById('hits').innerText = gameState.hits;
+        
+        if (gameState.hits >= 10) {
+            gameState.isRunning = false;
+            showScreen("MISSION ACCOMPLISHED!", "You caught the thief 10 times!");
+        }
+    }
 
-  if (e.key === "f" && ammo > 0) {
-    bullets.push({
-      x: player.x,
-      y: player.y,
-      width: 10,
-      height: 20
+    gameState.obstacles.forEach((obs, i) => {
+        obs.y += gameState.speed;
+        // Collision with obstacles
+        if (obs.lane === player.lane && obs.y + 40 > player.y && obs.y < player.y + 40) {
+            gameState.isRunning = false;
+            showScreen("GAME OVER", "You crashed into an obstacle!");
+        }
+        if (obs.y > canvas.height) gameState.obstacles.splice(i, 1);
     });
-    ammo--;
-  }
+}
+
+function draw() {
+    ctx.fillStyle = '#222';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Road Lines
+    ctx.strokeStyle = '#444';
+    ctx.setLineDash([20, 20]);
+    for(let i=1; i<3; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * gameState.laneWidth, 0);
+        ctx.lineTo(i * gameState.laneWidth, canvas.height);
+        ctx.stroke();
+    }
+
+    // Draw Obstacles (Wooden Crates & Cones)
+    gameState.obstacles.forEach(obs => {
+        let x = obs.lane * gameState.laneWidth + (gameState.laneWidth/2) - 25;
+        if (obs.type === 'crate') {
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(x, obs.y, 50, 50);
+            ctx.strokeStyle = '#5D2E0A';
+            ctx.strokeRect(x+5, obs.y+5, 40, 40);
+        } else {
+            ctx.fillStyle = '#FF4500';
+            ctx.beginPath();
+            ctx.moveTo(x + 25, obs.y);
+            ctx.lineTo(x, obs.y + 50);
+            ctx.lineTo(x + 50, obs.y + 50);
+            ctx.fill();
+        }
+    });
+
+    player.draw();
+    thief.draw();
+    document.getElementById('score').innerText = Math.floor(gameState.score);
+}
+
+function showScreen(title, msg) {
+    document.getElementById('overlay').classList.remove('hidden');
+    document.getElementById('title').innerText = title;
+    document.getElementById('msg').innerText = msg;
+    document.getElementById('start-btn').innerText = "TRY AGAIN";
+}
+
+function gameLoop() {
+    update();
+    draw();
+    if (gameState.isRunning) requestAnimationFrame(gameLoop);
+}
+
+// Controls
+window.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft' && player.lane > 0) player.lane--;
+    if (e.key === 'ArrowRight' && player.lane < 2) player.lane++;
 });
 
-// spawn obstacles
-setInterval(() => {
-  obstacles.push({
-    x: lanes[Math.floor(Math.random() * 3)],
-    y: -50,
-    width: 60,
-    height: 60
-  });
-}, 1200);
-
-// spawn ammo
-setInterval(() => {
-  ammoItems.push({
-    x: lanes[Math.floor(Math.random() * 3)],
-    y: -50,
-    width: 40,
-    height: 40
-  });
-}, 2000);
-
-// draw road
-function drawRoad() {
-  ctx.fillStyle = "#222";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  ctx.strokeStyle = "white";
-  ctx.setLineDash([20, 20]);
-
-  for (let i = 0; i < canvas.height; i += 40) {
-    ctx.beginPath();
-    ctx.moveTo(canvas.width / 2 - 120, i);
-    ctx.lineTo(canvas.width / 2 - 120, i + 20);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(canvas.width / 2 + 120, i);
-    ctx.lineTo(canvas.width / 2 + 120, i + 20);
-    ctx.stroke();
-  }
-
-  ctx.setLineDash([]);
-}
-
-// draw player
-function drawPlayer() {
-  ctx.drawImage(
-    playerImg,
-    player.x - player.width / 2,
-    player.y,
-    player.width,
-    player.height
-  );
-}
-
-// draw thief
-function drawThief() {
-  ctx.drawImage(
-    thiefImg,
-    thief.x - thief.width / 2,
-    thief.y,
-    thief.width,
-    thief.height
-  );
-}
-
-// collision check
-function isColliding(a, b) {
-  return (
-    a.x < b.x + b.width &&
-    a.x + a.width > b.x &&
-    a.y < b.y + b.height &&
-    a.y + a.height > b.y
-  );
-}
-
-// update
-function update() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  drawRoad();
-
-  // smooth lane move
-  player.x += (lanes[laneIndex] - player.x) * 0.2;
-
-  // gravity
-  player.y += player.dy;
-  if (player.y + player.height < canvas.height) {
-    player.dy += player.gravity;
-    player.grounded = false;
-  } else {
-    player.dy = 0;
-    player.grounded = true;
-    player.y = canvas.height - player.height;
-  }
-
-  drawPlayer();
-  drawThief();
-
-  // bullets
-  bullets.forEach((b, i) => {
-    b.y -= 10;
-    ctx.fillStyle = "yellow";
-    ctx.fillRect(b.x - 5, b.y, b.width, b.height);
-
-    // hit thief
-    if (isColliding(b, {
-      x: thief.x - thief.width / 2,
-      y: thief.y,
-      width: thief.width,
-      height: thief.height
-    })) {
-      bullets.splice(i, 1);
-      hits++;
-      thief.speed = 1; // slow effect
-
-      setTimeout(() => {
-        thief.speed = 2;
-      }, 1000);
-    }
-  });
-
-  // obstacles
-  obstacles.forEach((o, i) => {
-    o.y += 6;
-    ctx.fillStyle = "red";
-    ctx.fillRect(o.x - 30, o.y, o.width, o.height);
-
-    if (isColliding(player, {
-      x: o.x - 30,
-      y: o.y,
-      width: o.width,
-      height: o.height
-    })) {
-      alert("Game Over!");
-      location.reload();
-    }
-  });
-
-  // ammo
-  ammoItems.forEach((a, i) => {
-    a.y += 5;
-    ctx.fillStyle = "cyan";
-    ctx.fillRect(a.x - 20, a.y, a.width, a.height);
-
-    if (isColliding(player, {
-      x: a.x - 20,
-      y: a.y,
-      width: a.width,
-      height: a.height
-    })) {
-      ammo++;
-      ammoItems.splice(i, 1);
-    }
-  });
-
-  // win condition
-  if (hits >= 10) {
-    alert("You caught the thief! 🎉");
-    location.reload();
-  }
-
-  // UI
-  score++;
-  document.getElementById("score").innerText = "Score: " + score;
-  document.getElementById("ammo").innerText = "Ammo: " + ammo;
-  document.getElementById("hits").innerText = "Hits: " + hits + " / 10";
-
-  requestAnimationFrame(update);
-}
-
-// start
-thiefImg.onload = () => {
-  update();
+document.getElementById('start-btn').onclick = () => {
+    gameState = { ...gameState, isRunning: true, hits: 0, score: 0, obstacles: [], frame: 0 };
+    document.getElementById('hits').innerText = "0";
+    document.getElementById('overlay').classList.add('hidden');
+    canvas.width = 400; canvas.height = 700;
+    gameState.laneWidth = canvas.width / 3;
+    gameLoop();
 };
