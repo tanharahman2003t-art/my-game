@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lane Runner Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        
+        <div id="ui-layer">
+            <div id="start-screen" class="overlay">
+                <h1>LANE RUNNER</h1>
+                <p>Avoid the red obstacles!</p>
+                <div class="controls-hint">
+                    Arrows to Move • Space to Jump<br>
+                    Swipe or Tap on Mobile
+                </div>
+                <button id="start-btn">START GAME</button>
+            </div>
+
+            <div id="game-over-screen" class="overlay hidden">
+                <h1>GAME OVER</h1>
+                <p>Final Score: <span id="final-score">0</span></p>
+                <button id="restart-btn">PLAY AGAIN</button>
+            </div>
+
+            <div id="hud" class="hidden">
+                <div id="score-display">Score: 0</div>
+            </div>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
