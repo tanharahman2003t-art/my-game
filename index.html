@@ -5,15 +5,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
   <title>NEON CHASE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-
   <canvas id="gc"></canvas>
 
   <!-- HUD -->
-  <div id="hud">
+  <div id="hud" class="hidden">
     <div class="h-block">
       <div class="h-label">SCORE</div>
       <div class="h-val" id="hScore">0</div>
@@ -24,36 +23,39 @@
     </div>
     <div class="h-block right">
       <div class="h-label">LIVES</div>
-      <div id="hLives" class="h-lives"></div>
+      <div id="hLives" class="h-lives">❤❤❤</div>
     </div>
   </div>
 
-  <!-- power-up timer bars -->
-  <div id="bars">
+  <!-- Power bars -->
+  <div id="bars" class="hidden">
     <div id="shieldBar" class="pbar hidden">
-      <span class="pb-label">SHIELD</span>
+      <span class="pb-label">⚡ SHIELD</span>
       <div class="pb-track"><div id="shieldFill" class="pb-fill green"></div></div>
     </div>
     <div id="rapidBar" class="pbar hidden">
-      <span class="pb-label">RAPID</span>
+      <span class="pb-label">🔥 RAPID</span>
       <div class="pb-track"><div id="rapidFill" class="pb-fill yellow"></div></div>
     </div>
   </div>
 
-  <!-- combo / event text -->
+  <!-- Event text -->
   <div id="evtText"></div>
 
   <!-- START SCREEN -->
   <div id="startScreen" class="screen">
     <div class="sc-eyebrow">CYBER DIVISION · UNIT 7</div>
-    <div class="sc-logo">NEON<br>CHASE</div>
-    <div class="sc-sub">INFINITE PURSUIT</div>
+    <div class="sc-logo">NEON<br><span>CHASE</span></div>
+    <div class="sc-sub">∞ INFINITE PURSUIT ∞</div>
     <div class="sc-desc">
       Switch lanes · Shoot the thief · Dodge barriers<br>
       Collect power-ups · Chase forever
     </div>
     <div class="sc-keys">
-      <span class="kbd">◀</span><span class="kbd">▶</span> &nbsp;Arrow keys or tap buttons
+      <span class="kbd">◀</span>
+      <span class="kbd-label">Lane Left</span>
+      <span class="kbd">▶</span>
+      <span class="kbd-label">Lane Right</span>
     </div>
     <button id="startBtn" class="cta">▶ &nbsp;START CHASE</button>
   </div>
@@ -66,11 +68,11 @@
     <button class="cta" onclick="location.reload()">↺ &nbsp;RETRY</button>
   </div>
 
-  <!-- mobile controls -->
-  <div id="ctrl">
-    <button class="cbtn" id="cLeft">◀</button>
+  <!-- Mobile controls -->
+  <div id="ctrl" class="hidden">
+    <button class="cbtn" id="cLeft" aria-label="Move Left">◀</button>
     <div class="ctrl-mid"></div>
-    <button class="cbtn" id="cRight">▶</button>
+    <button class="cbtn" id="cRight" aria-label="Move Right">▶</button>
   </div>
 
   <script src="game.js"></script>
