@@ -2,74 +2,75 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
   <title>NEON CHASE</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
+
   <canvas id="gc"></canvas>
 
   <!-- HUD -->
-  <div id="hud" class="hidden">
-    <div class="hud-left">
-      <div class="hlabel">SCORE</div>
-      <div id="hScore">0</div>
+  <div id="hud">
+    <div class="h-block">
+      <div class="h-label">SCORE</div>
+      <div class="h-val" id="hScore">0</div>
     </div>
-    <div class="hud-center">
-      <div class="hlabel">LEVEL</div>
-      <div id="hLevel">1</div>
+    <div class="h-block center">
+      <div class="h-label">LEVEL</div>
+      <div class="h-val yellow" id="hLevel">1</div>
     </div>
-    <div class="hud-right">
-      <div class="hlabel">LIVES</div>
-      <div id="hLives">❤❤❤</div>
-    </div>
-  </div>
-
-  <div id="hud-bottom" class="hidden">
-    <div id="shieldBar" class="bar-wrap hidden">
-      <div class="hlabel">SHIELD</div>
-      <div class="bar-bg"><div id="shieldFill" class="bar-fill shield"></div></div>
-    </div>
-    <div id="rapidBar" class="bar-wrap hidden">
-      <div class="hlabel">RAPID</div>
-      <div class="bar-bg"><div id="rapidFill" class="bar-fill rapid"></div></div>
+    <div class="h-block right">
+      <div class="h-label">LIVES</div>
+      <div id="hLives" class="h-lives"></div>
     </div>
   </div>
 
-  <!-- Status pop -->
-  <div id="banner"></div>
-
-  <!-- START -->
-  <div id="startScreen" class="overlay">
-    <div class="logo-eyebrow">CYBER DIVISION · UNIT 7</div>
-    <div class="logo">NEON<br>CHASE</div>
-    <div class="logo-sub">INFINITE PURSUIT</div>
-    <div class="start-keys">
-      <span class="key">◀</span><span class="key">▶</span> Switch Lanes
+  <!-- power-up timer bars -->
+  <div id="bars">
+    <div id="shieldBar" class="pbar hidden">
+      <span class="pb-label">SHIELD</span>
+      <div class="pb-track"><div id="shieldFill" class="pb-fill green"></div></div>
     </div>
-    <div class="powerup-legend">
-      <span class="pu-badge shield">S</span> Shield &nbsp;·&nbsp;
-      <span class="pu-badge rapid">R</span> Rapid &nbsp;·&nbsp;
-      <span class="pu-badge life">♥</span> Life
+    <div id="rapidBar" class="pbar hidden">
+      <span class="pb-label">RAPID</span>
+      <div class="pb-track"><div id="rapidFill" class="pb-fill yellow"></div></div>
     </div>
-    <button id="startBtn" class="main-btn">▶ &nbsp;START CHASE</button>
-    <p class="tagline">Dodge barriers · Collect power-ups · Chase forever</p>
   </div>
 
-  <!-- GAME OVER -->
-  <div id="goScreen" class="overlay hidden">
-    <div class="go-label" id="goLabel">MISSION FAILED</div>
-    <div class="go-big" id="goBig">ELIMINATED</div>
-    <div class="go-stats" id="goStats"></div>
-    <button class="main-btn" onclick="location.reload()">↺ &nbsp;RETRY</button>
+  <!-- combo / event text -->
+  <div id="evtText"></div>
+
+  <!-- START SCREEN -->
+  <div id="startScreen" class="screen">
+    <div class="sc-eyebrow">CYBER DIVISION · UNIT 7</div>
+    <div class="sc-logo">NEON<br>CHASE</div>
+    <div class="sc-sub">INFINITE PURSUIT</div>
+    <div class="sc-desc">
+      Switch lanes · Shoot the thief · Dodge barriers<br>
+      Collect power-ups · Chase forever
+    </div>
+    <div class="sc-keys">
+      <span class="kbd">◀</span><span class="kbd">▶</span> &nbsp;Arrow keys or tap buttons
+    </div>
+    <button id="startBtn" class="cta">▶ &nbsp;START CHASE</button>
   </div>
 
-  <!-- Mobile touch buttons -->
-  <div id="touch-ctrl" class="hidden">
-    <button id="tLeft"  class="touch-btn">◀</button>
-    <button id="tRight" class="touch-btn">▶</button>
+  <!-- GAME OVER SCREEN -->
+  <div id="goScreen" class="screen hidden">
+    <div class="go-tag" id="goTag">MISSION FAILED</div>
+    <div class="go-title" id="goTitle">ELIMINATED</div>
+    <div class="go-info" id="goInfo"></div>
+    <button class="cta" onclick="location.reload()">↺ &nbsp;RETRY</button>
+  </div>
+
+  <!-- mobile controls -->
+  <div id="ctrl">
+    <button class="cbtn" id="cLeft">◀</button>
+    <div class="ctrl-mid"></div>
+    <button class="cbtn" id="cRight">▶</button>
   </div>
 
   <script src="game.js"></script>
