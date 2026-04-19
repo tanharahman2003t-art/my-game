@@ -550,7 +550,7 @@ function tick() {
   /* auto-shoot when aligned with thief lane */
   if (G.shootTimer > 0) G.shootTimer--;
   if (G.lane === G.tLane && G.shootTimer <= 0) {
-    G.bullets.push({ lane:G.lane, t:PT-0.05, trail:[], age:0 });
+    G.bullets.push({ lane:G.lane, t:PT - 0.04, trail:[], age:0 });
     SFX.shoot();
     G.shootTimer = G.rapidOn ? 14 : 28;
   }
@@ -561,17 +561,17 @@ function tick() {
     G.tTimer = Math.max(22, 78 - G.level*7);
   }
 
-  /* ── bullets ── */
-  var bSpd = 0.030 + G.level*0.002;
+  /* ── bullets: t DECREASES (player=0.88 → thief=0.16, toward horizon) ── */
+  var bSpd = 0.028 + G.level*0.002;
   for (var i = G.bullets.length-1; i >= 0; i--) {
     var b = G.bullets[i];
     b.trail.push(b.t);
     if (b.trail.length > 8) b.trail.shift();
-    b.t  += bSpd;
+    b.t  -= bSpd;   /* DECREASING: moves from PT(0.88) toward TT(0.16) */
     b.age++;
 
     /* hit thief? */
-    if (b.lane === G.tLane && dHit(b.t, TT, 0.11)) {
+    if (b.lane === G.tLane && dHit(b.t, TT, 0.10)) {
       G.combo++; G.comboTimer = 100;
       var pts = 10 + (G.combo>1 ? G.combo*7 : 0);
       G.score += pts;
@@ -585,7 +585,8 @@ function tick() {
       G.bullets.splice(i, 1);
       updHUD(); continue;
     }
-    if (b.t > TT + 0.16) G.bullets.splice(i, 1);
+    /* gone past thief toward horizon */
+    if (b.t < TT - 0.14) G.bullets.splice(i, 1);
   }
 
   /* ── obstacles ── */
